@@ -192,3 +192,7 @@ def graph(sub_der, old_cd, character):
         # если старый список равен новому мы максимально углубились и нашли все пути
         return graph(sub_der, new_cd, character)
     return new_cd
+
+
+def new_element(a):
+    return 10**a
