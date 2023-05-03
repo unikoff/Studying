@@ -157,38 +157,73 @@ def speed_sort(ns_list):
         return speed_sort(less_list) + same + speed_sort(more_list)
 
 
-def graph(sub_der, old_cd, character):
-    """Графа где водиться суб директория и один элемент из директории стоящей над ней + character(символ остановки)"""
-    # примечание: old_connection_directory == old_cd, subdirectory == sub_der, new_connection_directory == new_cd
-    # важно, чтобы в поддиректории сначала шли завершающие дорожки
-    new_cd = {}
-    # в будущем понадобиться
-    for past_path in old_cd:
-        # переберем все возможные "пути"
+class Graph:
+    def __init__(self, father_der, sub_der, character):
+        self.graph = self.__all_graph_init(father_der, sub_der, character)
 
-        if past_path[-1] != character:
-            # если символ не равен завершающему, то продолжим иначе сразу вносим в готовую директорию
-            # создали базовый случай
+    def __all_graph_init(self, father_der, sub_der, character):
+        final_dikt = {}
+        for i in father_der:
+            final_dikt.update(self.__graph_init(sub_der, {i: father_der[i]}, character))
+        return final_dikt
 
-            # last_item = None
-            # вводим переменную последний item
+    def __graph_init(self, sub_der, old_cd, character):
+        """Графа где водиться суб директория и один элемент из директории стоящей над ней + character(символ остановки)"""
+        # примечание: old_connection_directory == old_cd, subdirectory == sub_der, new_connection_directory == new_cd
+        # важно, чтобы в поддиректории сначала шли завершающие дорожки
+        new_cd = {}
+        # в будущем понадобиться
+        for past_path in old_cd:
+            # переберем все возможные "пути"
 
-            for sub_item in sub_der:
-                # переберем все значения подкаталога
+            if past_path[-1] != character:
+                # если символ не равен завершающему, то продолжим иначе сразу вносим в готовую директорию
+                # создали базовый случай
 
-                if past_path[-1] == sub_item[0] and sub_item not in past_path:
-                    # если найдём в подкаталоге путь начинающийся, на то, на что заканчивается наш последний элемент,
-                    # но при этом он не одинаковый с нашим то
+                # last_item = None
+                # вводим переменную последний item
 
-                    new_cd[past_path + sub_item[1]] = old_cd[past_path] + sub_der[sub_item]
-                    # занесём его в новую директорию
+                for sub_item in sub_der:
+                    # переберем все значения подкаталога
 
-        else:
-            # внесли готовые элементы в директорию
-            new_cd[past_path] = old_cd[past_path]
+                    if past_path[-1] == sub_item[0] and sub_item not in past_path:
+                        # если найдём в подкаталоге путь начинающийся, на то, на что заканчивается наш последний элемент,
+                        # но при этом он не одинаковый с нашим то
 
-    # вносим все новые пути и элементы оканчивающиеся на последний символ в новую директорию
-    if new_cd != old_cd:
-        # если старый список равен новому мы максимально углубились и нашли все пути
-        return graph(sub_der, new_cd, character)
-    return new_cd
+                        new_cd[past_path + sub_item[1]] = old_cd[past_path] + sub_der[sub_item]
+                        # занесём его в новую директорию
+
+            else:
+                # внесли готовые элементы в директорию
+                new_cd[past_path] = old_cd[past_path]
+
+        # вносим все новые пути и элементы оканчивающиеся на последний символ в новую директорию
+        if new_cd != old_cd:
+            # если старый список равен новому мы максимально углубились и нашли все пути
+            return self.__graph_init(sub_der, new_cd, character)
+        return new_cd
+
+    def all_paths(self):
+        return self.graph
+
+    def minimal(self, obj=None):
+        if obj:
+            return min(obj.graph, key=lambda k: obj.graph[k])
+        return min(self.graph, key=lambda k: self.graph[k])
+
+    def maximal(self, obj=None):
+        if obj:
+            return max(obj.graph, key=lambda k: obj.graph[k])
+        return max(self.graph, key=lambda k: self.graph[k])
+
+    def __len__(self):
+        return len(self.graph)
+
+    def __repr__(self):
+        return self.graph
+
+    def __str__(self):
+        srting = ''
+        for key, val in self.graph.items():
+            srting += f'{key} = {val}, '
+        return srting[:-2]
