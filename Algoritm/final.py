@@ -157,7 +157,7 @@ def speed_sort(ns_list):
         return speed_sort(less_list) + same + speed_sort(more_list)
 
 
-def dynamic_store(title: list, price: list, max_weight: int):
+def dynamic_store_list(title: list, price: list, max_weight: int):
     cell = [[0 for i in range(max_weight)] for _ in title]
     for mom_t in range(len(title)):
         # mom_t - moment title
@@ -168,6 +168,24 @@ def dynamic_store(title: list, price: list, max_weight: int):
                     cell[mom_t][mom_w] = (max(price[mom_t] + cell[mom_t - 1][mom_w - title[mom_t]], cell[mom_t - 1][mom_w]))
                 else:
                     cell[mom_t][mom_w] = (max(price[mom_t], cell[mom_t - 1][mom_w]))
+            else:
+                cell[mom_t][mom_w] = (cell[mom_t - 1][mom_w])
+    return cell
+
+
+def dynamic_store_dict(product_list: dict, max_weight: int):
+    cell = [[(0, list()) for _ in range(max_weight)] for _ in product_list]
+    mom_t = -1
+    # mom_t - moment title
+    for key, values in product_list.items():
+        mom_t += 1
+        for mom_w in range(max_weight):
+            # mom_w - moment weight
+            if values[0] - 1 <= mom_w:
+                if mom_w + 1 - values[0] > 0:
+                    cell[mom_t][mom_w] = (max(values[1] + cell[mom_t - 1][mom_w - values[0]][0], cell[mom_t - 1][mom_w][0]), cell[mom_t - 1][mom_w][1] + [key])
+                else:
+                    cell[mom_t][mom_w] = (max(values[1], cell[mom_t - 1][mom_w][0]), cell[mom_t - 1][mom_w][1] + [key])
             else:
                 cell[mom_t][mom_w] = (cell[mom_t - 1][mom_w])
     return cell
