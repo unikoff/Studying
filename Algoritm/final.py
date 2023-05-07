@@ -1,3 +1,6 @@
+from math import sqrt
+
+
 def binary_search(original_list, val, copy_list=False, counter=0, maximum_item=0, minimum_item=0, index=0):
     """Бинарный поиск элемента в отсортированном массиве"""
     if not copy_list:
@@ -189,3 +192,15 @@ def dynamic_store_dict(product_list: dict, max_weight: int):
             else:
                 cell[mom_t][mom_w] = (cell[mom_t - 1][mom_w])
     return cell
+
+
+def apple_or_banana(size_width: int = 0, size_length: int = 0, shade: int = 0):
+    # у идеального банана длина = 15, ширина = 2 и оттенок жёлтого 8
+    # у идеального яблока длина = 8, ширина = 8 и оттенок жёлтого 0
+    perfect_fruit = {
+        'banana': (15, 2, 10),
+        'apple': (8, 8, 0)
+    }
+    return min(perfect_fruit, key=lambda x: sqrt(((perfect_fruit[x][0] - size_width)**2) +
+                                                 ((perfect_fruit[x][1] - size_length)**2) +
+                                                 ((perfect_fruit[x][2] - shade)**2)))
