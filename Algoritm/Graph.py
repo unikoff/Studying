@@ -47,7 +47,7 @@ class Graph:
             return self.__graph_init(sub_dir, new_cd, character)
         return new_cd
 
-    def maxinmal(self, obj: object = None):
+    def maximal(self, obj: object = None):
         if isinstance(obj, Graph):
             return max(obj.graph, key=lambda k: obj.graph[k])
         return max(self.graph, key=lambda k: self.graph[k])
@@ -106,5 +106,5 @@ def minimal(obj: Graph):
 
 def maximal(obj: Graph):
     if isinstance(obj, Graph):
-        return Graph.maxinmal(obj)
+        return Graph.maximal(obj)
     raise ValueError("Вводите объект Graph")
