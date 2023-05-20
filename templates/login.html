@@ -1,0 +1,13 @@
+{% extends 'baze.html' %}
+{% block title %}
+{{ super() }}
+{% endblock %}
+{% block content %}
+{{ super() }}
+<h1>Авторизация</h1>
+<form action="/login" method="post" class="form-contact">
+    <p><label>Имя: </label> <input type="text" name="us" value="" required />
+    <p><label>Пароль: </label> <input type="text" name="psw" value="" required />
+    <p><input type="submit" value="Войти" />
+</form>
+{% endblock %}
