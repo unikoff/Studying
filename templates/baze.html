@@ -3,28 +3,33 @@
 <head>
     <link type="text/css" href="{{ url_for('static', filename='styles.css')}}" rel="stylesheet">
     {% block title %}
-        {% if title %}
-        <title>{{ title }}</title>
-        {% else %}
-        <title>Не определено</title>
-        {% endif %}
+    {% if title %}
+    <title>{{ title }}</title>
+    {% else %}
+    <title>Не определено</title>
+    {% endif %}
     {% endblock title -%}
 </head>
 <body>
 {% block content -%}
-    {% block mainmenu -%}
-        <ul class="mainmenu">
-            {% if menu %}
-                {% for i in menu -%}
-                <li><a href="{{i.url}}">{{i.name}}</a></li>
-                {% endfor -%}
-            {% else %}
-                <li><a href="/">Главная</a></li>
-                <li><a href="about">Дополнительно</a></li>
-                <li><a href="contact">Контакты</a></li>
-            {% endif %}
-        </ul>
-    {% endblock mainmenu -%}
+{% block mainmenu -%}
+<ul class="mainmenu">
+    {% if menu %}
+    {% for i in menu -%}
+    <li><a href="{{i.url}}">{{i.name}}</a></li>
+    {% endfor -%}
+    {% else %}
+    <li><a href="/">Главная</a></li>
+    <li><a href="about">Дополнительно</a></li>
+    <li><a href="/contact">Контакты</a></li>
+    {% if request.cookies.get('log_name') %}
+    <li><a href="/login">{{ request.cookies.get('log_name') }}</a></li>
+    {% else %}
+    <li><a href="/login">Авторизация</a></li>
+    {% endif %}
+    {% endif %}
+</ul>
+{% endblock mainmenu -%}
 {% endblock content -%}
 </body>
 </html>
