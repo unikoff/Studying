@@ -4,9 +4,12 @@
 {% endblock %}
 {% block content %}
 {{ super() }}
-<h1>{{ user }} вот ваш профиль</h1>
-<p>Это главная страница моего сайта для обучения</p>
-<form>
-    <button type="submit" formmethod="GET" name="but" value="delete">Удалить профиль</button>
+<h1>{{ current_user.get_id() }} вот ваш профиль</h1>
+<div class="ima"><img src="{{ url_for('upload')}}"></div>
+<form action="" method="post" enctype="multipart/form-data">
+    {{ form.hidden_tag() }}
+    <p>{{ form.ava() }}</p>
+    <p>{{ form.upload() }}</p>
+    <p>{{ form.but_del() }}</p>
 </form>
 {% endblock %}

@@ -8,11 +8,12 @@
 <div class="flash {{cat}}">{{msg}}</div>
 {% endfor %}
 <h1>Авторизация</h1>
-<form action="/login" method="post" class="form-contact">
-    <p><label>Имя: </label> <input type="text" name="user" value="" required/>
-    <p><label>Пароль: </label> <input type="text" name="password" value="" required/>
-    <p><input type="checkbox" name="remember_p">Запомнить меня</p>
-    <p><input type="submit" value="Войти"/>
-    <p><a href="{{ url_for('register') }}">Регистрация</a>
+<form method="post">
+    {{ form.hidden_tag() }}
+    <p>{{ form.name.label }} {{ form.name() }}</p>
+    <p>{{ form.psw.label }} {{ form.psw() }}</p>
+    <p>{{ form.remember.label }} {{ form.remember() }}</p>
+    <p>{{ form.submit() }}</p>
 </form>
+<p><a href="/register">Регистрация</a></p>
 {% endblock %}

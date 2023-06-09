@@ -7,11 +7,23 @@
 {% for cat, msg in get_flashed_messages(True) %}
 <div class="flash {{cat}}">{{msg}}</div>
 {% endfor %}
-<h1>Авторизация</h1>
+<h1>Регистрация</h1>
 <form action="/register" method="post" class="form-contact">
-    <p><label>Имя: </label> <input type="text" name="us" value="" required/>
-    <p><label>Пароль: </label> <input type="text" name="psw1" value="" required/>
-    <p><label>Повторите пароль: </label> <input type="text" name="psw2" value="" required/>
-    <p><input type="submit" value="Зарегистрироваться"/>
+    {{ form.hidden_tag() }}
+    <p>{{ form.name.label }}
+        {% if form.name.errors %}
+        {{ form.name(class="invalid") }}
+        <span class="inval">
+        {% for e in form.name.errors %}
+            {{ e }}
+        {% endfor %}
+        </span>
+        {% else %}
+        {{ form.name() }}
+        {% endif %}
+    </p>
+    <p>{{ form.psw1.label }} {{ form.psw1() }}</p>
+    <p>{{ form.psw2.label }} {{ form.psw2() }}</p>
+    <p>{{ form.submit() }}</p>
 </form>
 {% endblock %}

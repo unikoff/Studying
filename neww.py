@@ -1,9 +1,15 @@
-from flask import Flask, make_response, get_flashed_messages, \
-    render_template, g, url_for, request, flash, redirect, \
-    abort
+from flask import Flask, make_response, render_template, g, url_for, request, \
+    flash, redirect, abort
+from Admin.admin import admin
+
 from db_plus import *
 import sqlite3
 import os
+
+from flask_login import LoginManager, login_user, logout_user, current_user, login_required
+from UserLog import *
+
+from forms import *
 
 """CONFIG"""
 DATABASE = 'first_p.db'
@@ -13,6 +19,15 @@ SECRET_KEY = 'fuio123wqrhouiuh'
 app = Flask(__name__)
 app.config.from_object(__name__)
 app.config.update(dict(DATABASE=os.path.join(app.root_path, 'first_p.db')))
+UPLOAD_FOLDER = 'C:\\Users\\user\\PycharmProjects\\Studying\\static\\image'
+app.register_blueprint(admin, url_prefix='/admin')
+
+db = None
+
+login_manager = LoginManager(app)
+login_manager.login_view = 'login'
+login_manager.login_message = 'Для доступа требуется регистрация'
+login_manager.login_message_category = 'down'
 
 """DATABASE"""
 
@@ -45,8 +60,9 @@ def close_db(error):
         g.link_db.close()
 
 
-"""GLOBAL CONSTANT"""
-db = None
+@login_manager.user_loader
+def load_user(user):
+    return UserLog().from_db(user, db)
 
 
 @app.before_request
@@ -66,57 +82,66 @@ def about():
     return render_template('about.html')
 
 
-@app.route('/contact', methods=['POST', 'GET'])
-def contact():
-    if request.method == 'POST':
-        if request.form['username'] == 'pp':
-            flash('Удачно', category='up')
-        else:
-            flash('Не верно задано имя пользователя', category='down')
-    return render_template('contact.html')
-
-
 @app.route('/login', methods=['POST', 'GET'])
 def login():
-    if request.cookies.get('log_name'):
-        return redirect(url_for('profile', username=request.cookies.get('log_name')))
-    elif request.method == 'POST' and request.form.get('user'):
-        print(request.form.get('user'), request.form.get('password'))
-        if db.authorization_user(request.form.get('user'), request.form.get('password')):
-            res = make_response(redirect(url_for('profile', username=request.form.get('user'))))
-            res.set_cookie('log_name', request.form.get('user'))
-            return res
+    form = Login()
+    if current_user.is_authenticated:
+        return redirect(url_for('profile'))
+    elif form.validate_on_submit():
+        if db.authorization_user(form.name.data, form.psw.data):
+            user = UserLog().create(db.select_user(form.name.data))
+            login_user(user, remember=form.remember.data)
+            return redirect(url_for('profile'))
+        else:
+            flash('Ошибка', 'down')
+    return render_template('login.html', form=form)
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+@login_required
+def profile():
+    form = Profile()
+    if form.validate_on_submit():
+        if form.but_del.data:
+            return redirect('/logout')
+        elif form.ava.data:
+            file = form.ava.data
+            db.new_ava(file.read(), current_user.get_id())
+    return render_template('profile.html', form=form)
+
+
+@app.route('/upload', methods=['POST', 'GET'])
+def upload():
+    img = current_user.get_ava()
+    res = make_response(img)
+    res.content_type = 'image/png'
+    return res
+
+
+@app.route('/logout')
+@login_required
+def logout():
+    logout_user()
+    flash('Выход выполнен', 'up')
+    return redirect(url_for('login'))
+
+
+@app.route("/register", methods=['POST', 'GET'])
+def register():
+    form = Registration()
+    if form.validate_on_submit():
+        if form.psw1.data == form.psw2.data and db.new_user(form.name.data, form.psw1.data):
+            user = UserLog().create(db.select_user(form.name.data))
+            login_user(user)
+            return redirect(url_for('login'))
         else:
             flash('Ошибка', category='down')
-    return render_template('login.html')
-
-
-@app.route('/profile/<username>', methods=['POST', 'GET'])
-def profile(username):
-    print(request.cookies, request.args)
-    if request.cookies.get('log_name'):
-        if request.args.get('but') and request.args.get('but') == 'delete':
-            res = make_response(redirect(url_for('login')))
-            res.set_cookie('log_name', max_age=0)
-            return res
-        elif request.cookies.get('log_name') == username:
-            return render_template('profile.html', user=username)
-    abort(401)
+    return render_template('registration.html', form=form)
 
 
 @app.errorhandler(404)
 def danger(error):
     return render_template('error404.html')
-
-
-@app.route("/register", methods=['POST', 'GET'])
-def register():
-    if request.method == 'POST':
-        if request.form['psw1'] == request.form['psw2'] and db.new_user(request.form['us'], request.form['psw1']):
-            return redirect(url_for('login'))
-        else:
-            flash('Ошибка', category='down')
-    return render_template('registration.html')
 
 
 if __name__ == '__main__':

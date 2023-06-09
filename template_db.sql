@@ -1,4 +1,5 @@
 CREATE TABLE IF NOT EXISTS user (
 name text PRIMARY KEY,
-psw text NOT NULL
+psw text NOT NULL,
+ava BLOB DEFAULT NULL
 );
