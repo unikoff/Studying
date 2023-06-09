@@ -12,7 +12,7 @@ class Login(FlaskForm):
 
 
 class Registration(FlaskForm):
-    name = StringField('Имя: ', validators=[DataRequired(), Length(min=10, message='assaas')])
+    name = StringField('Имя: ', validators=[DataRequired()])
     psw1 = PasswordField('Пароль: ', validators=[DataRequired()])
     psw2 = PasswordField('Повторите пароль: ', validators=[DataRequired(), EqualTo('psw1', message='qwewq')])
     submit = SubmitField('Зарегистрироваться')
